@@ -40,7 +40,7 @@ export class UploadComponent implements OnInit {
     this._player.debug = true; // set true to enable TNSPlayer console logs for debugging.
     this._player
       .initFromFile({
-        audioFile: '/src/res/audio/audio1.m4a', // ~ = app directory
+        audioFile: 'https://www.w3schools.com/html/horse.mp3', // ~ = app directory
         loop: false,
         completeCallback: this._trackComplete.bind(this),
         errorCallback: this._trackError.bind(this),
