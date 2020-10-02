@@ -25,7 +25,7 @@ import { isIOS } from 'tns-core-modules/platform';
       })
 export class UploadComponent implements OnInit {
   private _player: TNSPlayer;
-  //private duration = 5000;
+  private duration;
   constructor() {
 
   }
@@ -51,7 +51,7 @@ export class UploadComponent implements OnInit {
           // Android: duration is in milliseconds
           //let current = this._player.currentTime
           if (isIOS) {
-           const duration = 100;
+           const duration = 10000;
             //current *= 1000
           }
 
