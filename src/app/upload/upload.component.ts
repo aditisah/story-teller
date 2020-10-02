@@ -17,7 +17,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TNSPlayer } from 'nativescript-audio';
 import { from } from 'rxjs';
-import { isIOS } from 'tns-core-modules/platform';
+//import { isIOS } from 'tns-core-modules/platform';
 @Component({
         selector: 'ns-upload',
         templateUrl: './upload.component.html',
@@ -49,9 +49,6 @@ export class UploadComponent implements OnInit {
         this._player.getAudioTrackDuration().then((duration) => {
           // iOS: duration is in seconds
           // Android: duration is in milliseconds
-          if(isIOS){
-             const duration = 15;
-          }
 
           console.log(`song duration:`, duration);
         });
