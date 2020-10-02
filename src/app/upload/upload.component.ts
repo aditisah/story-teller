@@ -51,7 +51,7 @@ export class UploadComponent implements OnInit {
           // Android: duration is in milliseconds
           //let current = this._player.currentTime
           if (isIOS) {
-           const duration = 1000;
+           const duration = 100;
             //current *= 1000
           }
 
