@@ -17,7 +17,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TNSPlayer } from 'nativescript-audio';
 import { from } from 'rxjs';
-import { isIOS } from 'tns-core-modules/platform';
+//import { isIOS } from '@nativescript/core';
 @Component({
         selector: 'ns-upload',
         templateUrl: './upload.component.html',
@@ -25,7 +25,8 @@ import { isIOS } from 'tns-core-modules/platform';
       })
 export class UploadComponent implements OnInit {
   private _player: TNSPlayer;
-  private duration;
+  //private _recorder: TNSRecorder;
+  //private duration;
   constructor() {
 
   }
@@ -50,10 +51,10 @@ export class UploadComponent implements OnInit {
           // iOS: duration is in seconds
           // Android: duration is in milliseconds
           //let current = this._player.currentTime
-          if (isIOS) {
-           const duration = 10000;
+        //   if (isIOS) {
+        //    const duration = 1000;
             //current *= 1000
-          }
+         // }
 
           //this.progress = Math.ceil(current / duration * 100);
 
