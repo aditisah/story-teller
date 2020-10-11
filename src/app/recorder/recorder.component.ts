@@ -1,194 +1,104 @@
-// // import { Component, OnInit } from '@angular/core';
+import {
+    TNSRecorder,
+    AudioRecorderOptions
+  } from 'nativescript-audio';
+  import { File, knownFolders, isAndroid } from '@nativescript/core';
+//import { android } from '@nativescript/core/application';
+//import { android } from '@nativescript/core/application';
+declare var android;
 
-// // @Component({
-// //   selector: 'ns-recorder',
-// //   templateUrl: './recorder.component.html',
-// //   styleUrls: ['./recorder.component.css']
-// // })
-// // export class RecorderComponent implements OnInit {
+  export class SomeClassInYourProject {
+    private _recorder: TNSRecorder;
 
-// //   constructor() { }
+    constructor() {
+      this._recorder = new TNSRecorder();
+    }
 
-// //   ngOnInit(): void {
-// //   }
+    public startRecordingAudio() {
+      if (!TNSRecorder.CAN_RECORD()) {
+        console.log('crud, this device cannot record audio');
+        return;
+      }
 
-// // }
+      const audioFolder = knownFolders.currentApp().getFolder('audio');
 
+      let androidFormat;
+      let androidEncoder;
+      if (isAndroid) {
+        androidFormat =  android.media.MediaRecorder.OutputFormat.MPEG_4;
+        androidEncoder = android.media.MediaRecorder.AudioEncoder.AAC;
+      }
 
-// import { Component, OnInit } from '@angular/core';
-// import { Application } from '@nativescript/core';
-// import { android } from '@nativescript/core/application';
-// import { hasPermission, requestPermission } from 'nativescript-permissions';
-// import { TNSRecordI } from '../../../src/common';
-// import { AudioRecorderOptions } from '../../../src/options';
-// @Component({
-//        selector: 'ns-recorder',
-//        templateUrl: './recorder.component.html',
-//        styleUrls: ['./recorder.component.css']
-//      })
-// export class RecorderComponent implements TNSRecordI {
-//   private _recorder: any;
-//   //android: any;
-//   get android() {
-//     return this._recorder;
-//   }
+      const recorderOptions: AudioRecorderOptions = {
+        filename: `${audioFolder.path}/recording.${isAndroid ? 'm4a' : 'caf'}`,
 
-//   public static CAN_RECORD(): boolean {
-//     const pManager = Application.android.context.getPackageManager();
-//     const canRecord = pManager.hasSystemFeature(
-//       android.content.pm.PackageManager.FEATURE_MICROPHONE
-//     );
-//     if (canRecord) {
-//       return true;
-//     } else {
-//       return false;
-//     }
-//   }
+        format: androidFormat,
 
-//   public requestRecordPermission(explanation = '') {
-//     return new Promise(async (resolve, reject) => {
-//       try {
-//         await requestPermission(
-//           (this.android as any).Manifest.permission.RECORD_AUDIO
-//         ).catch(err => {
-//           reject(err);
-//         });
-//         resolve();
-//       } catch (error) {
-//         reject(error);
-//       }
-//     });
-//   }
+        encoder: androidEncoder,
 
-//   public hasRecordPermission() {
-//     const permission = hasPermission(
-//       (android as any).Manifest.permission.RECORD_AUDIO
-//     );
-//     return !0 === permission ? !0 : !1;
-//   }
+        metering: true,
 
-//   public start(options: AudioRecorderOptions): Promise<any> {
-//     return new Promise(async (resolve, reject) => {
-//       try {
-//         // bake the permission into this so the dev doesn't have to call it
-//         await this.requestRecordPermission().catch(err => {
-//           console.log(err);
-//           reject('Permission to record audio is not granted.');
-//         });
+        infoCallback: infoObject => {
+          console.log(JSON.stringify(infoObject));
+        },
 
-//         if (this._recorder) {
-//           // reset for reuse
-//           this._recorder.reset();
-//         } else {
-//           this._recorder = new this.android.media.MediaRecorder();
-//         }
+        errorCallback: errorObject => {
+          console.log(JSON.stringify(errorObject));
+        }
+      };
 
-//         const audioSource = options.source ? options.source : 0;
-//         this._recorder.setAudioSource(audioSource);
+      this._recorder
+        .start(recorderOptions)
+        .then(result => {
+          console.log('recording has started', result);
+        })
+        .catch(err => {
+          console.log('oh no, something is wrong and recording did not start');
+        });
+    }
 
-//         const outFormat = options.format ? options.format : 0;
-//         this._recorder.setOutputFormat(outFormat);
+    public pause() {
+      this._recorder
+        .pause()
+        .then(result => {
+          console.log('recording has been paused');
+        })
+        .catch(err => {
+          console.log('recording could not be paused');
+        });
+    }
 
-//         const encoder = options.encoder ? options.encoder : 0;
-//         this._recorder.setAudioEncoder(encoder);
+    public async stop() {
+      const stopResult = await this._recorder.stop().catch(err => {
+        console.log('oh no recording did not stop correctly');
+      });
+      if (stopResult) {
+        console.log('recording stopped successfully.');
+      }
+    }
 
-//         if (options.channels) {
-//           this._recorder.setAudioChannels(options.channels);
-//         }
-//         if (options.sampleRate) {
-//           this._recorder.setAudioSamplingRate(options.sampleRate);
-//         }
-//         if (options.bitRate) {
-//           this._recorder.setAudioEncodingBitRate(options.bitRate);
-//         }
+    // public getFile() {
+    //   try {
+    //     const audioFolder = knownFolders.currentApp().getFolder('audio');
+    //     const recordedFile = audioFolder.getFile(
+    //       `recording.${isAndroid ? 'm4a' : 'caf'}`
+    //     );
+    //     console.log(JSON.stringify(recordedFile));
+    //     console.log('recording exists: ' + File.exists(recordedFile.path));
+    //     this.recordedAudioFile = recordedFile.path;
+    //   } catch (ex) {
+    //     console.log(ex);
+    //   }
+    // }
 
-//         this._recorder.setOutputFile(options.filename);
-
-//         // On Error
-//         this._recorder.setOnErrorListener(
-//           new this.android.media.MediaRecorder.OnErrorListener({
-//             onError: (recorder: any, error: number, extra: number) => {
-//               options.errorCallback({ recorder, error, extra });
-//             }
-//           })
-//         );
-
-//         // On Info
-//         this._recorder.setOnInfoListener(
-//           new this.android.media.MediaRecorder.OnInfoListener({
-//             onInfo: (recorder: any, info: number, extra: number) => {
-//               options.infoCallback({ recorder, info, extra });
-//             }
-//           })
-//         );
-
-//         this._recorder.prepare();
-//         this._recorder.start();
-
-//         resolve();
-//       } catch (ex) {
-//         reject(ex);
-//       }
-//     });
-//   }
-
-//   public getMeters(): number {
-//     if (this._recorder != null) return this._recorder.getMaxAmplitude();
-//     else return 0;
-//   }
-
-//   public pause(): Promise<any> {
-//     return new Promise((resolve, reject) => {
-//       try {
-//         if (this._recorder) {
-//           this._recorder.pause();
-//         }
-//         resolve();
-//       } catch (ex) {
-//         reject(ex);
-//       }
-//     });
-//   }
-
-//   public resume(): Promise<any> {
-//     return new Promise((resolve, reject) => {
-//       try {
-//         if (this._recorder) {
-//           this._recorder.resume();
-//         }
-//         resolve();
-//       } catch (ex) {
-//         reject(ex);
-//       }
-//     });
-//   }
-
-//   public stop(): Promise<any> {
-//     return new Promise((resolve, reject) => {
-//       try {
-//         if (this._recorder) {
-//           this._recorder.stop();
-//         }
-//         resolve();
-//       } catch (ex) {
-//         reject(ex);
-//       }
-//     });
-//   }
-
-//   public dispose(): Promise<any> {
-//     return new Promise((resolve, reject) => {
-//       try {
-//         if (this._recorder) {
-//           this._recorder.release();
-//         }
-//         this._recorder = undefined;
-//         resolve();
-//       } catch (ex) {
-//         reject(ex);
-//       }
-//     });
-//   }
-// }
-
-
+    // public async dispose() {
+    //   const disposeResult = await this._recorder.dispose().catch(err => {
+    //     dialogs.alert({
+    //       message: `Dispose Error: ${err}`,
+    //       okButtonText: 'Okay'
+    //     });
+    //   });
+    //   console.log('disposeResult', disposeResult);
+    //   this._recorder = new TNSRecorder();
+    // }
+  }
